@@ -4,6 +4,8 @@
 
 Minecraftに特化した連打ツールです。
 
+[ダウンロードはこちら](https://github.com/tamago572/MC-Auto-Click-Tool/releases)
+
 ## 機能
 
 - 左クリック/右クリックを指定できます
