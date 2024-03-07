@@ -192,7 +192,10 @@ def on_closing():
         root.destroy()
 
 def open_usage():
-    webbrowser.open("")
+    webbrowser.open("https://github.com/tamago572/MC-Auto-Click-Tool", new=0, autoraise=True)
+
+def show_version():
+    messagebox.showinfo("バージョン情報", "MC Auto Click Tool\nVersion 1.0\n© 2024 bunbun")
 
 menubar = tk.Menu(root)
 root.config(menu=menubar)
@@ -200,14 +203,13 @@ root.config(menu=menubar)
 setting_menu = tk.Menu(menubar, tearoff=0)
 menubar.add_cascade(label="設定", menu=setting_menu)
 
-setting_menu.add_command(label="トリガーキーの変更")
+# setting_menu.add_command(label="トリガーキーの変更")
 setting_menu.add_command(label="終了", command=on_closing)
 
 help_menu = tk.Menu(menubar, tearoff=0)
 menubar.add_cascade(label="ヘルプ", menu=help_menu)
 
-help_menu.add_command(label="使い方")
-help_menu.add_command(label="バージョン情報")
-help_menu.add_command(label="作者のGitHub")
+help_menu.add_command(label="使い方", command=open_usage)
+help_menu.add_command(label="バージョン情報", command=show_version)
 
 root.mainloop()
