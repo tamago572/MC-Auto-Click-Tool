@@ -1,3 +1,4 @@
+import webbrowser
 import pyautogui
 import time
 import keyboard
@@ -39,7 +40,7 @@ class twe(threading.Thread):
             print('Failure in raising exception')
 
 
-
+# https://qiita.com/76r6qo698/items/a0d3bdac3425dda6056a
 def detect_key_press():
     global barrage_is_running
     global long_press_is_running
@@ -50,12 +51,21 @@ def detect_key_press():
         if keyboard.read_event().event_type == keyboard.KEY_DOWN:
             print("キーが押されました")
             if keyboard.is_pressed("f8"):
+                # 連打
                 print("F8が押されました")
                 print(barrage_is_running)
 
+                if intervalbox.get() == "":
+                    messagebox.showerror("エラー", "連打間隔を入力してください")
+                    continue
 
                 if not barrage_is_running:
-                    interval = float(intervalbox.get())
+                    try:
+                        interval = float(intervalbox.get())
+                    except ValueError:
+                        messagebox.showerror("エラー", "連打間隔には数字を入力してください")
+                        continue
+
                     print(interval)
 
                     status_label["text"] = "連打：ON"
@@ -74,6 +84,7 @@ def detect_key_press():
                     print(barrage_is_running)
 
             elif keyboard.is_pressed("f9"):
+                # 長押し
                 print("F9が押されました")
 
                 if not long_press_is_running:
@@ -82,10 +93,21 @@ def detect_key_press():
 
                     long_press_is_running = True
 
-                    pyautogui.mouseDown()
+                    if isRightClick.get():
+                        # 右クリ
+                        pyautogui.mouseDown(button="right")
+                    else:
+                        # 左クリ
+                        pyautogui.mouseDown()
 
                 else:
-                    pyautogui.mouseUp()
+                    if isRightClick.get():
+                        # 右クリ
+                        pyautogui.mouseUp(button="right")
+                    else:
+                        # 左クリ
+                        pyautogui.mouseUp()
+
                     status_label2["text"] = "長押し：OFF"
                     status_label2.update()
 
@@ -100,7 +122,13 @@ def barrage(interval):
     print("running barrage")
     try:
         while barrage_is_running:
-            pyautogui.click()
+            if isRightClick.get():
+                # 右クリック
+                pyautogui.rightClick()
+            else:
+                # 左クリック
+                pyautogui.click()
+            print("click")
 
             start = time.time()
 
@@ -118,30 +146,68 @@ def barrage(interval):
 
 root = tk.Tk()
 root.title("MC Auto Click Tool")
-root.geometry("400x300")
+root.geometry("520x400")
 
-label1 = tk.Label(root, text="MC Auto Click Tool")
-label1.pack()
+frame1 = tk.Frame(root)
+frame1.pack(anchor=tk.W, padx=30, pady=15)
+frame2 = tk.Frame(root)
+frame2.pack(anchor=tk.W, padx=50, pady=10)
+frame3 = tk.Frame(root)
+frame3.pack(anchor=tk.W, padx=50, pady=10)
+frame4 = tk.Frame(root)
+frame4.pack(anchor=tk.W, padx=50, pady=10)
+frame5 = tk.Frame(root)
+frame5.pack(anchor=tk.W, padx=50, pady=10)
 
-label2 = tk.Label(root, text="連打間隔を入力")
-label2.pack()
+label1 = tk.Label(frame1, text="MC Auto Click Tool", font=("Helvetica", 24, "bold"))
+label1.pack(side=tk.LEFT)
 
-intervalbox = tk.Entry()
+label2 = tk.Label(frame2, text="連打間隔を入力", font=("Helvetica", 16))
+label2.pack(side=tk.LEFT)
+
+intervalbox = tk.Entry(frame2)
 intervalbox.insert(tk.END, "2")
-intervalbox.pack()
+intervalbox.pack(side=tk.LEFT)
 
-label3 = tk.Label(root, text="秒")
-label3.pack()
+label3 = tk.Label(frame2, text="秒", font=("Helvetica", 16))
+label3.pack(side=tk.LEFT)
 
-status_label = tk.Label(root, text="連打：OFF")
-status_label.pack()
-howto_label = tk.Label(root, text="F8キーで連打開始/停止")
-howto_label.pack()
+howto_label = tk.Label(frame3, text="F8キーで連打開始/停止", font=("Helvetica", 16))
+howto_label.pack(anchor=tk.W)
+status_label = tk.Label(frame3, text="連打：OFF", font=("Helvetica", 16))
+status_label.pack(anchor=tk.W)
 
-status_label2 = tk.Label(root, text="長押し：OFF")
-status_label2.pack()
-howto_label2 = tk.Label(root, text="F9キーで連打開始/停止")
-howto_label2.pack()
+howto_label2 = tk.Label(frame4, text="F9キーで長押し開始/停止", font=("Helvetica", 16))
+howto_label2.pack(anchor=tk.W)
+status_label2 = tk.Label(frame4, text="長押し：OFF", font=("Helvetica", 16))
+status_label2.pack(anchor=tk.W)
+
+isRightClick = tk.BooleanVar()
+chk = tk.Checkbutton(frame5, variable=isRightClick, text="右クリック", font=("Helvetica", 16))
+chk.pack(anchor=tk.W)
+
+
+def on_closing():
+    if messagebox.askokcancel("終了", "終了しますか？"):
+        root.destroy()
+
+def open_usage():
+    webbrowser.open("")
+
+menubar = tk.Menu(root)
+root.config(menu=menubar)
+
+setting_menu = tk.Menu(menubar, tearoff=0)
+menubar.add_cascade(label="設定", menu=setting_menu)
+
+setting_menu.add_command(label="トリガーキーの変更")
+setting_menu.add_command(label="終了", command=on_closing)
+
+help_menu = tk.Menu(menubar, tearoff=0)
+menubar.add_cascade(label="ヘルプ", menu=help_menu)
+
+help_menu.add_command(label="使い方")
+help_menu.add_command(label="バージョン情報")
+help_menu.add_command(label="作者のGitHub")
 
 root.mainloop()
-
